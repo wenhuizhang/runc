@@ -11,20 +11,9 @@
 
 `runc` is a CLI tool for spawning and running containers on Linux according to the OCI specification.
 
-## Releases
-
-You can find official releases of `runc` on the [release](https://github.com/opencontainers/runc/releases) page.
-
-## Security
-
-The reporting process and disclosure communications are outlined [here](https://github.com/opencontainers/org/blob/master/SECURITY.md).
-
-### Security Audit
-A third party security audit was performed by Cure53, you can see the full report [here](https://github.com/opencontainers/runc/blob/master/docs/Security-Audit.pdf).
 
 ## Building
 
-`runc` only supports Linux. It must be built with Go version 1.18 or higher.
 
 In order to enable seccomp support you will need to install `libseccomp` on your platform.
 > e.g. `libseccomp-devel` for CentOS, or `libseccomp-dev` for Ubuntu
