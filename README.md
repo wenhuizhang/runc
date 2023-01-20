@@ -248,6 +248,10 @@ runc start mycontainerid
 # after 5 seconds view that the container has exited and is now in the stopped state
 runc list
 
+# kill container 
+runc kill testcontainerid KILL
+
+
 # now delete the container
 runc delete mycontainerid
 ```
