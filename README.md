@@ -39,6 +39,18 @@ sudo make install
 
 `runc` will be installed to `/usr/local/sbin/runc` on your system.
 
+### Docker 
+```
+wget https://download.docker.com/linux/debian/dists/buster/pool/stable/amd64/docker-ce-cli_20.10.9~3-0~debian-buster_amd64.deb 
+wget https://download.docker.com/linux/debian/dists/buster/pool/stable/amd64/docker-ce_20.10.9~3-0~debian-buster_amd64.deb 
+wget https://download.docker.com/linux/debian/dists/buster/pool/stable/amd64/docker-compose-plugin_2.6.0~debian-buster_amd64.deb 
+
+dpkg -i docker-ce_20.10.9~3-0~debian-buster_amd64.deb
+dpkg -i docker-compose-plugin_2.6.0~debian-buster_amd64.deb
+dpkg -i docker-ce-cli_20.10.9~3-0~debian-buster_amd64.deb
+
+```
+
 
 #### Build Tags
 
