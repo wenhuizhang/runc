@@ -1,34 +1,19 @@
 # runc
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/opencontainers/runc)](https://goreportcard.com/report/github.com/opencontainers/runc)
-[![GoDoc](https://godoc.org/github.com/opencontainers/runc?status.svg)](https://godoc.org/github.com/opencontainers/runc)
+[![Go Reference](https://pkg.go.dev/badge/github.com/opencontainers/runc.svg)](https://pkg.go.dev/github.com/opencontainers/runc)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/588/badge)](https://bestpractices.coreinfrastructure.org/projects/588)
 [![gha/validate](https://github.com/opencontainers/runc/workflows/validate/badge.svg)](https://github.com/opencontainers/runc/actions?query=workflow%3Avalidate)
 [![gha/ci](https://github.com/opencontainers/runc/workflows/ci/badge.svg)](https://github.com/opencontainers/runc/actions?query=workflow%3Aci)
+[![CirrusCI](https://api.cirrus-ci.com/github/opencontainers/runc.svg)](https://cirrus-ci.com/github/opencontainers/runc)
 
 ## Introduction
 
-`runc` is a CLI tool for spawning and running containers according to the OCI specification.
+`runc` is a CLI tool for spawning and running containers on Linux according to the OCI specification.
 
-## Releases
-
-`runc` depends on and tracks the [runtime-spec](https://github.com/opencontainers/runtime-spec) repository.
-We will try to make sure that `runc` and the OCI specification major versions stay in lockstep.
-This means that `runc` 1.0.0 should implement the 1.0 version of the specification.
-
-You can find official releases of `runc` on the [release](https://github.com/opencontainers/runc/releases) page.
-
-## Security
-
-The reporting process and disclosure communications are outlined [here](https://github.com/opencontainers/org/blob/master/SECURITY.md).
-
-### Security Audit
-A third party security audit was performed by Cure53, you can see the full report [here](https://github.com/opencontainers/runc/blob/master/docs/Security-Audit.pdf).
 
 ## Building
 
-`runc` currently supports the Linux platform with various architecture support.
-It must be built with Go version 1.13 or higher.
 
 In order to enable seccomp support you will need to install `libseccomp` on your platform.
 > e.g. `libseccomp-devel` for CentOS, or `libseccomp-dev` for Ubuntu
@@ -54,6 +39,37 @@ sudo make install
 
 `runc` will be installed to `/usr/local/sbin/runc` on your system.
 
+### Docker 
+```
+wget https://download.docker.com/linux/debian/dists/buster/pool/stable/amd64/docker-ce-cli_20.10.9~3-0~debian-buster_amd64.deb 
+wget https://download.docker.com/linux/debian/dists/buster/pool/stable/amd64/docker-ce_20.10.9~3-0~debian-buster_amd64.deb 
+wget https://download.docker.com/linux/debian/dists/buster/pool/stable/amd64/docker-compose-plugin_2.6.0~debian-buster_amd64.deb 
+
+dpkg -i docker-ce_20.10.9~3-0~debian-buster_amd64.deb
+dpkg -i docker-compose-plugin_2.6.0~debian-buster_amd64.deb
+dpkg -i docker-ce-cli_20.10.9~3-0~debian-buster_amd64.deb
+
+```
+### RunC test
+
+```
+mkdir test-runc
+cd test-runc
+docker pull hello-world
+docker export $(docker create hello-world) > hello-world.tar
+mkdir rootfs
+tar -C rootfs -xf hello-world.tar
+runc spec
+// sed -i 's;"sh";"/hello";' ` + specConfig + `
+runc run test
+runc list
+
+runc checkpoint test01
+runc list
+runc restore test02
+runc list
+
+```
 
 #### Build Tags
 
@@ -115,7 +131,7 @@ You can run a test using your container engine's flags by setting `CONTAINER_ENG
 
 `runc` uses [Go Modules](https://github.com/golang/go/wiki/Modules) for dependencies management.
 Please refer to [Go Modules](https://github.com/golang/go/wiki/Modules) for how to add or update
-new dependencies. When updating dependencies, be sure that you are running Go `1.14` or newer.
+new dependencies.
 
 ```
 # Update vendored dependencies
@@ -251,6 +267,10 @@ runc start mycontainerid
 # after 5 seconds view that the container has exited and is now in the stopped state
 runc list
 
+# kill container 
+runc kill testcontainerid KILL
+
+
 # now delete the container
 runc delete mycontainerid
 ```
@@ -306,7 +326,6 @@ WantedBy=multi-user.target
 * [Checkpoint and restore](./docs/checkpoint-restore.md)
 * [systemd cgroup driver](./docs/systemd.md)
 * [Terminals and standard IO](./docs/terminals.md)
+* [Experimental features](./docs/experimental.md)
 
-## License
 
-The code and docs are released under the [Apache 2.0 license](LICENSE).
