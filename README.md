@@ -50,7 +50,26 @@ dpkg -i docker-compose-plugin_2.6.0~debian-buster_amd64.deb
 dpkg -i docker-ce-cli_20.10.9~3-0~debian-buster_amd64.deb
 
 ```
+### RunC test
 
+```
+mkdir test-runc
+cd test-runc
+docker pull hello-world
+docker export $(docker create hello-world) > hello-world.tar
+mkdir rootfs
+tar -C rootfs -xf hello-world.tar
+runc spec
+// sed -i 's;"sh";"/hello";' ` + specConfig + `
+runc run test
+runc list
+
+runc checkpoint test01
+runc list
+runc restore test02
+runc list
+
+```
 
 #### Build Tags
 
