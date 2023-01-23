@@ -69,6 +69,11 @@ runc list
 runc restore test02
 runc list
 
+
+runc list
+runc checkpoint --leave-running  --image-path  ./image --work-path ./work test
+runc checkpoint --pre-dump --image-path  ./image --work-path ./work test
+
 ```
 
 #### Build Tags
