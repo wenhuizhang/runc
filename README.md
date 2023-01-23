@@ -76,6 +76,50 @@ runc checkpoint --pre-dump --image-path  ./image --work-path ./work test
 
 ```
 
+
+# Checkpoint & Restore Performance
+Example one: kitex 
+
+```
+git clone https://github.com/cloudwego/kitex-examples.git
+cd kitex-examples/
+docker build -t kitex-examples .
+cd ..
+docker export $(docker create kitex-examples) > kitex-examples.tar
+mkdir test-runc-kitex-examples
+cd test-runc-kitex-examples
+mkdir rootfs 
+tar -C rootfs -xf ../kitex-examples.tar
+runc spec 
+runc run kitex-examples
+```
+Example two: ngnix
+```
+docker pull nginx
+docker export $(docker create nginx) > nginx.tar
+mkdir test-runc-nginx
+cd test-runc-nginx
+tar -C rootfs -xf ../nginx.tar 
+runc spec
+runc run nginx
+```
+Example three: hello-world
+```
+docker pull hello-world
+docker export $(docker create hello-world) > hello-world.tar
+mkdir test-runc-hello-world
+cd test-runc-hello-world
+tar -C rootfs -xf ../hello-world.tar 
+runc spec
+runc run hello-world
+```
+
+checkpoint and restore evaluation
+```
+```
+
+
+
 #### Build Tags
 
 `runc` supports optional build tags for compiling support of various features,
