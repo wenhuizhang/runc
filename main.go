@@ -6,6 +6,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	//"runtime/pprof"
 
 	"github.com/opencontainers/runc/libcontainer/logs"
 	"github.com/opencontainers/runc/libcontainer/seccomp"
@@ -51,6 +52,12 @@ value for "bundle" is the current directory.`
 )
 
 func main() {
+	//f, _ := os.OpenFile("cpu.profile", os.O_CREATE|os.O_RDWR, 0644)
+	//defer f.Close()
+	//pprof.StartCPUProfile(f)
+	//defer pprof.StopCPUProfile()
+
+
 	app := cli.NewApp()
 	app.Name = "runc"
 	app.Usage = usage
