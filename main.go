@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	//"time"
 	"io"
 	"os"
 	"runtime"
@@ -166,10 +167,17 @@ func main() {
 	// If the command returns an error, cli takes upon itself to print
 	// the error on cli.ErrWriter and exit.
 	// Use our own writer here to ensure the log gets sent to the right location.
+	//var time_start  int64
+	//var time_end int64
+	//time_start = time.Now().UnixMilli()
+	//time_start = time.Now().UnixNano()
 	cli.ErrWriter = &FatalWriter{cli.ErrWriter}
 	if err := app.Run(os.Args); err != nil {
 		fatal(err)
 	}
+	//time_end = time.Now().UnixMilli()
+	//time_end = time.Now().UnixNano()
+	//fmt.Println(time_end - time_start)
 }
 
 type FatalWriter struct {

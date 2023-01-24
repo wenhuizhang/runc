@@ -5,6 +5,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"time"
 	"net"
 	"os"
 	"path/filepath"
@@ -45,6 +46,11 @@ checkpointed.`,
 		cli.BoolFlag{Name: "auto-dedup", Usage: "enable auto deduplication of memory images"},
 	},
 	Action: func(context *cli.Context) error {
+		var time_start  int64
+		var time_end int64
+		//time_start = time.Now().UnixMilli()
+		time_start = time.Now().UnixNano()
+
 		if err := checkArgs(context, 1, exactArgs); err != nil {
 			return err
 		}
@@ -75,7 +81,13 @@ checkpointed.`,
 		if err := setEmptyNsMask(context, options); err != nil {
 			return err
 		}
-		return container.Checkpoint(options)
+		var result = container.Checkpoint(options)
+
+		//time_end = time.Now().UnixMilli()
+		time_end = time.Now().UnixNano()
+		fmt.Println(time_end - time_start)
+
+		return result
 	},
 }
 
