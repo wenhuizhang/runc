@@ -4,7 +4,8 @@ package main
 
 import (
 	"os"
-	//"fmt"
+	"fmt"
+	"time"
 
 	"github.com/opencontainers/runc/libcontainer"
 	"github.com/opencontainers/runc/libcontainer/userns"
@@ -99,6 +100,11 @@ using the runc checkpoint command.`,
 		},
 	},
 	Action: func(context *cli.Context) error {
+		var time_start  int64
+		var time_end int64
+		//time_start = time.Now().UnixMilli()
+		time_start = time.Now().UnixNano()
+		
 		if err := checkArgs(context, 1, exactArgs); err != nil {
 			return err
 		}
@@ -116,6 +122,11 @@ using the runc checkpoint command.`,
 			return err
 		}
 		status, err := startContainer(context, spec, CT_ACT_RESTORE, options)
+		
+		//time_end = time.Now().UnixMilli()
+		time_end = time.Now().UnixNano()
+		fmt.Println(time_end - time_start)
+		
 		if err != nil {
 			return err
 		}
