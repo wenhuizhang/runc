@@ -114,8 +114,23 @@ runc spec
 runc run hello-world
 ```
 
+Example four: spark
+```
+docker pull apache/spark:latest
+docker export $(docker create apache/spark:latest) > spark.tar
+mkdir test-runc-spark
+cd test-runc-sppark
+tar -C rootfs -xf ../spark.tar 
+runc spec
+runc run spark
+
+```
+
 checkpoint and restore evaluation
 ```
+runc list
+runc checkpoint --leave-running  --image-path  ./image --work-path ./work test
+runc restore test
 ```
 
 
