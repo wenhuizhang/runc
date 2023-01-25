@@ -322,7 +322,7 @@ func (r *runner) run(config *specs.Process) (int, error) {
 	case CT_ACT_RUN:
 		err = r.container.Run(process)
 		var time_now int64
-		time_run = time.Now().UnixNano()
+		time_now = time.Now().UnixNano()
 		fmt.Println("run %v\n", time_now)
 	default:
 		panic("Unknown action")
