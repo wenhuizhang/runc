@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 	"net"
 	"os"
 	"os/exec"
@@ -310,10 +311,19 @@ func (r *runner) run(config *specs.Process) (int, error) {
 	switch r.action {
 	case CT_ACT_CREATE:
 		err = r.container.Start(process)
+		var time_now int64
+		time_now = time.Now().UnixNano()
+		fmt.Println("create %v\n", time_now)
 	case CT_ACT_RESTORE:
 		err = r.container.Restore(process, r.criuOpts)
+		var time_now int64
+		time_now = time.Now().UnixNano()
+		fmt.Println("restore %v\n", time_now)
 	case CT_ACT_RUN:
 		err = r.container.Run(process)
+		var time_now int64
+		time_run = time.Now().UnixNano()
+		fmt.Println("run %v\n", time_now)
 	default:
 		panic("Unknown action")
 	}
@@ -398,6 +408,10 @@ const (
 )
 
 func startContainer(context *cli.Context, spec *specs.Spec, action CtAct, criuOpts *libcontainer.CriuOpts) (int, error) {
+	var time_now int64
+	time_now = time.Now().UnixNano()
+	fmt.Println("start container %v\n", time_now)
+	
 	id := context.Args().First()
 	if id == "" {
 		return -1, errEmptyID
