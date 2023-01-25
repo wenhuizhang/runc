@@ -99,6 +99,7 @@ docker pull nginx
 docker export $(docker create nginx) > nginx.tar
 mkdir test-runc-nginx
 cd test-runc-nginx
+mkdir rootfs
 tar -C rootfs -xf ../nginx.tar 
 runc spec
 runc run nginx
@@ -109,6 +110,7 @@ docker pull hello-world
 docker export $(docker create hello-world) > hello-world.tar
 mkdir test-runc-hello-world
 cd test-runc-hello-world
+mkdir rootfs
 tar -C rootfs -xf ../hello-world.tar 
 runc spec
 runc run hello-world
@@ -119,7 +121,8 @@ Example four: spark
 docker pull apache/spark:latest
 docker export $(docker create apache/spark:latest) > spark.tar
 mkdir test-runc-spark
-cd test-runc-sppark
+cd test-runc-spark
+mkdir rootfs
 tar -C rootfs -xf ../spark.tar 
 runc spec
 runc run spark
