@@ -215,7 +215,14 @@ outside
 $ curl http://192.168.10.1:8080
 ```
 
+check & restore
+```
+runc checkpoint test
 
+runc restore test
+
+curl http://192.168.10.1:8080
+```
 
 ## Using runc
 
