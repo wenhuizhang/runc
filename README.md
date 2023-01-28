@@ -136,6 +136,7 @@ Should use 5.15 with CONFIG_RSEQ=y case PTRACE_GET_RSEQ_CONFIGURATION , https://
 set up network
 ```
 $ sudo ip netns ls
+$ sudo ip netns delete alpine_network
 $ sudo ip netns add alpine_network
 $ sudo ip link add name veth-host type veth peer name veth-alpine
 $ sudo ip link set veth-alpine netns alpine_network
