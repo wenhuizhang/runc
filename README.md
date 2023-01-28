@@ -225,6 +225,12 @@ runc checkpoint test
 runc restore test
 
 curl http://192.168.10.1:8080
+
+runc list
+# get PID
+nsenter -t PID --net bash
+ping IP_HOST
+
 ```
 
 ## Using runc
