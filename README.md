@@ -131,6 +131,8 @@ runc restore test
 
 ## runc with network
 
+Should use 5.15 with CONFIG_RSEQ=y case PTRACE_GET_RSEQ_CONFIGURATION , https://lore.kernel.org/lkml/161598681294.398.14135404653803937904.tip-bot2@tip-bot2/
+
 set up network
 ```
 $ sudo ip netns ls
