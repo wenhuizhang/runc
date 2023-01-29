@@ -1296,6 +1296,7 @@ func TestHook(t *testing.T) {
 	ok(t, err)
 
 	// Wait for process
+	// wenhui
 	waitProcess(&pconfig, t)
 
 	if err := container.Destroy(); err != nil {

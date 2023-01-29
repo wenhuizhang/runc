@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/opencontainers/runc/libcontainer"
 	"github.com/opencontainers/runc/libcontainer/utils"
@@ -154,7 +155,10 @@ func execProcess(context *cli.Context) (int, error) {
 		preserveFDs:     context.Int("preserve-fds"),
 		logLevel:        logLevel,
 	}
-	return r.run(p)
+	var xerr int
+	xerr, err = r.run(p)
+	fmt.Printf("time after exec process:",  time.Now().UnixNano(), "\n")
+	return  xerr, err
 }
 
 func getProcess(context *cli.Context, bundle string) (*specs.Process, error) {
