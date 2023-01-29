@@ -1,12 +1,5 @@
 # runc
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/opencontainers/runc)](https://goreportcard.com/report/github.com/opencontainers/runc)
-[![Go Reference](https://pkg.go.dev/badge/github.com/opencontainers/runc.svg)](https://pkg.go.dev/github.com/opencontainers/runc)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/588/badge)](https://bestpractices.coreinfrastructure.org/projects/588)
-[![gha/validate](https://github.com/opencontainers/runc/workflows/validate/badge.svg)](https://github.com/opencontainers/runc/actions?query=workflow%3Avalidate)
-[![gha/ci](https://github.com/opencontainers/runc/workflows/ci/badge.svg)](https://github.com/opencontainers/runc/actions?query=workflow%3Aci)
-[![CirrusCI](https://api.cirrus-ci.com/github/opencontainers/runc.svg)](https://cirrus-ci.com/github/opencontainers/runc)
-
 ## Introduction
 
 `runc` is a CLI tool for spawning and running containers on Linux according to the OCI specification.
@@ -99,6 +92,7 @@ docker pull nginx
 docker export $(docker create nginx) > nginx.tar
 mkdir test-runc-nginx
 cd test-runc-nginx
+mkdir rootfs
 tar -C rootfs -xf ../nginx.tar 
 runc spec
 runc run nginx
@@ -109,197 +103,137 @@ docker pull hello-world
 docker export $(docker create hello-world) > hello-world.tar
 mkdir test-runc-hello-world
 cd test-runc-hello-world
+mkdir rootfs
 tar -C rootfs -xf ../hello-world.tar 
 runc spec
 runc run hello-world
 ```
 
+Example four: spark
+```
+docker pull apache/spark:latest
+docker export $(docker create apache/spark:latest) > spark.tar
+mkdir test-runc-spark
+cd test-runc-spark
+mkdir rootfs
+tar -C rootfs -xf ../spark.tar 
+runc spec
+runc run spark
+
+```
+
 checkpoint and restore evaluation
 ```
+runc list
+runc checkpoint --leave-running  --image-path  ./image --work-path ./work test
+runc restore test
+```
+
+## runc with network
+
+Should use 5.15 with CONFIG_RSEQ=y case PTRACE_GET_RSEQ_CONFIGURATION , https://lore.kernel.org/lkml/161598681294.398.14135404653803937904.tip-bot2@tip-bot2/
+
+set up network
+```
+$ sudo ip netns ls
+$ sudo ip netns delete alpine_network
+$ sudo ip netns add alpine_network
+$ sudo ip link add name veth-host type veth peer name veth-alpine
+$ sudo ip link set veth-alpine netns alpine_network
+$ sudo ip link ls
+$ sudo ip -netns alpine_network link ls
+
+$ sudo ip netns exec alpine_network ip addr add 192.168.10.1/24 dev veth-alpine
+$ sudo ip netns exec alpine_network ip link set veth-alpine up
+$ sudo ip netns exec alpine_network ip link set lo up
+$ sudo ip -netns alpine_network addr
+$ sudo ip link set veth-host up
+$ sudo ip route add 192.168.10.1/32 dev veth-host
+$ sudo ip route
+$ sudo ip netns exec alpine_network ip route add default via 192.168.10.1 dev veth-alpine
+
+$ ping 192.168.10.1
+```
+
+tomcat example
+
+```
+$ mkdir -p tomcat_container/rootfs
+$ cd tomcat_container
+$ docker export $(docker run -d tomcat:9-jre11) |tar -C rootfs -xv
+$ sudo apt install default-jdk
+```
+
+```
+vim rootfs/usr/local/tomcat/bin/catalina.sh 
+# add
+
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 ```
 
 
 
-#### Build Tags
-
-`runc` supports optional build tags for compiling support of various features,
-with some of them enabled by default (see `BUILDTAGS` in top-level `Makefile`).
-
-To change build tags from the default, set the `BUILDTAGS` variable for make,
-e.g. to disable seccomp:
-
-```bash
-make BUILDTAGS=""
+```
+$ ls -l /var/run/netns
 ```
 
-| Build Tag | Feature                            | Enabled by default | Dependency |
-|-----------|------------------------------------|--------------------|------------|
-| seccomp   | Syscall filtering                  | yes                | libseccomp |
-
-The following build tags were used earlier, but are now obsoleted:
- - **nokmem** (since runc v1.0.0-rc94 kernel memory settings are ignored)
- - **apparmor** (since runc v1.0.0-rc93 the feature is always enabled)
- - **selinux**  (since runc v1.0.0-rc93 the feature is always enabled)
-
-### Running the test suite
-
-`runc` currently supports running its test suite via Docker.
-To run the suite just type `make test`.
-
-```bash
-make test
+Add below scripts to config.json
+```
+“namespaces”: [
+ {
+ “type”: “pid”
+ },
+ {
+ “type”: “network”,
+ “path”: “/var/run/netns/alpine_network”
+ },
 ```
 
-There are additional make targets for running the tests outside of a container but this is not recommended as the tests are written with the expectation that they can write and remove anywhere.
-
-You can run a specific test case by setting the `TESTFLAGS` variable.
-
-```bash
-# make test TESTFLAGS="-run=SomeTestFunction"
-```
-
-You can run a specific integration test by setting the `TESTPATH` variable.
-
-```bash
-# make test TESTPATH="/checkpoint.bats"
-```
-
-You can run a specific rootless integration test by setting the `ROOTLESS_TESTPATH` variable.
-
-```bash
-# make test ROOTLESS_TESTPATH="/checkpoint.bats"
-```
-
-You can run a test using your container engine's flags by setting `CONTAINER_ENGINE_BUILD_FLAGS` and `CONTAINER_ENGINE_RUN_FLAGS` variables.
-
-```bash
-# make test CONTAINER_ENGINE_BUILD_FLAGS="--build-arg http_proxy=http://yourproxy/" CONTAINER_ENGINE_RUN_FLAGS="-e http_proxy=http://yourproxy/"
-```
-
-### Dependencies Management
-
-`runc` uses [Go Modules](https://github.com/golang/go/wiki/Modules) for dependencies management.
-Please refer to [Go Modules](https://github.com/golang/go/wiki/Modules) for how to add or update
-new dependencies.
 
 ```
-# Update vendored dependencies
-make vendor
-# Verify all dependencies
-make verify-dependencies
+“args”: [
+“/usr/local/tomcat/bin/catalina.sh”,”run”
+ ]
+```
+
+```
+“user”: {
+ “uid”: 1000,
+ “gid”: 1000
+ }
+“root”: {
+ “path”: “rootfs”,
+ “readonly”:false
+ },
+```
+
+run tomcat
+```
+$ runc run tomcat
+```
+
+
+outside
+```
+$ curl http://192.168.10.1:8080
+```
+
+check & restore
+```
+runc checkpoint test
+
+runc restore test
+
+curl http://192.168.10.1:8080
+
+runc list
+# get PID
+nsenter -t PID --net bash
+ping IP_HOST
+
 ```
 
 ## Using runc
-
-Please note that runc is a low level tool not designed with an end user
-in mind. It is mostly employed by other higher level container software.
-
-Therefore, unless there is some specific use case that prevents the use
-of tools like Docker or Podman, it is not recommended to use runc directly.
-
-If you still want to use runc, here's how.
-
-### Creating an OCI Bundle
-
-In order to use runc you must have your container in the format of an OCI bundle.
-If you have Docker installed you can use its `export` method to acquire a root filesystem from an existing Docker container.
-
-```bash
-# create the top most bundle directory
-mkdir /mycontainer
-cd /mycontainer
-
-# create the rootfs directory
-mkdir rootfs
-
-# export busybox via Docker into the rootfs directory
-docker export $(docker create busybox) | tar -C rootfs -xvf -
-```
-
-After a root filesystem is populated you just generate a spec in the format of a `config.json` file inside your bundle.
-`runc` provides a `spec` command to generate a base template spec that you are then able to edit.
-To find features and documentation for fields in the spec please refer to the [specs](https://github.com/opencontainers/runtime-spec) repository.
-
-```bash
-runc spec
-```
-
-### Running Containers
-
-Assuming you have an OCI bundle from the previous step you can execute the container in two different ways.
-
-The first way is to use the convenience command `run` that will handle creating, starting, and deleting the container after it exits.
-
-```bash
-# run as root
-cd /mycontainer
-runc run mycontainerid
-```
-
-If you used the unmodified `runc spec` template this should give you a `sh` session inside the container.
-
-The second way to start a container is using the specs lifecycle operations.
-This gives you more power over how the container is created and managed while it is running.
-This will also launch the container in the background so you will have to edit
-the `config.json` to remove the `terminal` setting for the simple examples
-below (see more details about [runc terminal handling](docs/terminals.md)).
-Your process field in the `config.json` should look like this below with `"terminal": false` and `"args": ["sleep", "5"]`.
-
-
-```json
-        "process": {
-                "terminal": false,
-                "user": {
-                        "uid": 0,
-                        "gid": 0
-                },
-                "args": [
-                        "sleep", "5"
-                ],
-                "env": [
-                        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-                        "TERM=xterm"
-                ],
-                "cwd": "/",
-                "capabilities": {
-                        "bounding": [
-                                "CAP_AUDIT_WRITE",
-                                "CAP_KILL",
-                                "CAP_NET_BIND_SERVICE"
-                        ],
-                        "effective": [
-                                "CAP_AUDIT_WRITE",
-                                "CAP_KILL",
-                                "CAP_NET_BIND_SERVICE"
-                        ],
-                        "inheritable": [
-                                "CAP_AUDIT_WRITE",
-                                "CAP_KILL",
-                                "CAP_NET_BIND_SERVICE"
-                        ],
-                        "permitted": [
-                                "CAP_AUDIT_WRITE",
-                                "CAP_KILL",
-                                "CAP_NET_BIND_SERVICE"
-                        ],
-                        "ambient": [
-                                "CAP_AUDIT_WRITE",
-                                "CAP_KILL",
-                                "CAP_NET_BIND_SERVICE"
-                        ]
-                },
-                "rlimits": [
-                        {
-                                "type": "RLIMIT_NOFILE",
-                                "hard": 1024,
-                                "soft": 1024
-                        }
-                ],
-                "noNewPrivileges": true
-        },
-```
-
-Now we can go through the lifecycle operations in your shell.
 
 
 ```bash
@@ -324,7 +258,7 @@ runc kill testcontainerid KILL
 runc delete mycontainerid
 ```
 
-This allows higher level systems to augment the containers creation logic with setup of various settings after the container is created and/or before it is deleted. For example, the container's network stack is commonly set up after `create` but before `start`.
+
 
 #### Rootless containers
 `runc` has the ability to run containers without root privileges. This is called `rootless`. You need to pass some parameters to `runc` in order to run rootless containers. See below and compare with the previous version.
