@@ -260,6 +260,18 @@ root@n223-247-006:~/test-runc-redis# cat rootfs//usr/local/run.sh
 
 ```
 
+check and restore test
+
+```
+root@n223-247-006:~/CRIU-test/test-runc-redis# runc checkpoint --tcp-established test
+216670124
+root@n223-247-006:~/CRIU-test/test-runc-redis# runc restore --tcp-established test
+start container %v
+ 1675229836359660200
+restore %v
+ 1675229836420799355
+```
+
 
 debug
 
