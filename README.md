@@ -129,7 +129,7 @@ runc checkpoint --leave-running  --image-path  ./image --work-path ./work test
 runc restore test
 ```
 
-## runc with network
+## runc with network 
 
 Should use 5.15 with CONFIG_RSEQ=y case PTRACE_GET_RSEQ_CONFIGURATION , https://lore.kernel.org/lkml/161598681294.398.14135404653803937904.tip-bot2@tip-bot2/
 
@@ -231,6 +231,41 @@ runc list
 nsenter -t PID --net bash
 ping IP_HOST
 
+```
+
+
+-  redis example
+
+redis server on host
+
+```
+wget http://download.redis.io/releases/redis-6.0.5.tar.gz
+tar xzf redis-6.0.5.tar.gz
+cd redis-6.0.5
+make
+make test
+make install
+
+sudo ip route
+vim redis.conf # add ip on host
+redis-server redis.conf 
+```
+
+redis client in runc
+
+```
+root@n223-247-006:~/test-runc-redis# cat rootfs//usr/local/run.sh
+#!/bin/bash
+/usr/local/bin/redis-cli -h 172.17.0.1 # add ip on host
+
+```
+
+
+debug
+
+```
+nsenter -t 416682 --net bash
+ping # add ip on host
 ```
 
 ## Using runc
