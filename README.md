@@ -135,24 +135,24 @@ Should use 5.15 with CONFIG_RSEQ=y case PTRACE_GET_RSEQ_CONFIGURATION , https://
 
 set up network
 ```
-$ sudo ip netns ls
-$ sudo ip netns delete alpine_network
-$ sudo ip netns add alpine_network
-$ sudo ip link add name veth-host type veth peer name veth-alpine
-$ sudo ip link set veth-alpine netns alpine_network
-$ sudo ip link ls
-$ sudo ip -netns alpine_network link ls
+sudo ip netns ls
+sudo ip netns delete alpine_network
+sudo ip netns add alpine_network
+sudo ip link add name veth-host type veth peer name veth-alpine
+sudo ip link set veth-alpine netns alpine_network
+sudo ip link ls
+sudo ip -netns alpine_network link ls
 
-$ sudo ip netns exec alpine_network ip addr add 192.168.10.1/24 dev veth-alpine
-$ sudo ip netns exec alpine_network ip link set veth-alpine up
-$ sudo ip netns exec alpine_network ip link set lo up
-$ sudo ip -netns alpine_network addr
-$ sudo ip link set veth-host up
-$ sudo ip route add 192.168.10.1/32 dev veth-host
-$ sudo ip route
-$ sudo ip netns exec alpine_network ip route add default via 192.168.10.1 dev veth-alpine
+sudo ip netns exec alpine_network ip addr add 192.168.10.1/24 dev veth-alpine
+sudo ip netns exec alpine_network ip link set veth-alpine up
+sudo ip netns exec alpine_network ip link set lo up
+sudo ip -netns alpine_network addr
+sudo ip link set veth-host up
+sudo ip route add 192.168.10.1/32 dev veth-host
+sudo ip route
+sudo ip netns exec alpine_network ip route add default via 192.168.10.1 dev veth-alpine
 
-$ ping 192.168.10.1
+ping 192.168.10.1
 ```
 
 tomcat example
