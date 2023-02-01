@@ -133,6 +133,8 @@ runc restore test
 
 Should use 5.15 with CONFIG_RSEQ=y case PTRACE_GET_RSEQ_CONFIGURATION , https://lore.kernel.org/lkml/161598681294.398.14135404653803937904.tip-bot2@tip-bot2/
 
+host上打上这个patch应该就可以了， 打完之后就没有类似错误了
+
 set up network
 ```
 sudo ip netns ls
