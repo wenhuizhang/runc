@@ -478,6 +478,7 @@ func (p *initProcess) start() (retErr error) {
 
 			// generate a timestamp indicating when the container was started
 			p.container.created = time.Now().UTC()
+			fmt.Printf("container was started at ", time.Now().UnixNano() , "...\n")
 			p.container.state = &createdState{
 				c: p.container,
 			}
