@@ -129,30 +129,32 @@ runc checkpoint --leave-running  --image-path  ./image --work-path ./work test
 runc restore test
 ```
 
-## runc with network
+## runc with network 
 
 Should use 5.15 with CONFIG_RSEQ=y case PTRACE_GET_RSEQ_CONFIGURATION , https://lore.kernel.org/lkml/161598681294.398.14135404653803937904.tip-bot2@tip-bot2/
 
+host上打上这个patch应该就可以了， 打完之后就没有类似错误了
+
 set up network
 ```
-$ sudo ip netns ls
-$ sudo ip netns delete alpine_network
-$ sudo ip netns add alpine_network
-$ sudo ip link add name veth-host type veth peer name veth-alpine
-$ sudo ip link set veth-alpine netns alpine_network
-$ sudo ip link ls
-$ sudo ip -netns alpine_network link ls
+sudo ip netns ls
+sudo ip netns delete alpine_network
+sudo ip netns add alpine_network
+sudo ip link add name veth-host type veth peer name veth-alpine
+sudo ip link set veth-alpine netns alpine_network
+sudo ip link ls
+sudo ip -netns alpine_network link ls
 
-$ sudo ip netns exec alpine_network ip addr add 192.168.10.1/24 dev veth-alpine
-$ sudo ip netns exec alpine_network ip link set veth-alpine up
-$ sudo ip netns exec alpine_network ip link set lo up
-$ sudo ip -netns alpine_network addr
-$ sudo ip link set veth-host up
-$ sudo ip route add 192.168.10.1/32 dev veth-host
-$ sudo ip route
-$ sudo ip netns exec alpine_network ip route add default via 192.168.10.1 dev veth-alpine
+sudo ip netns exec alpine_network ip addr add 192.168.10.1/24 dev veth-alpine
+sudo ip netns exec alpine_network ip link set veth-alpine up
+sudo ip netns exec alpine_network ip link set lo up
+sudo ip -netns alpine_network addr
+sudo ip link set veth-host up
+sudo ip route add 192.168.10.1/32 dev veth-host
+sudo ip route
+sudo ip netns exec alpine_network ip route add default via 192.168.10.1 dev veth-alpine
 
-$ ping 192.168.10.1
+ping 192.168.10.1
 ```
 
 tomcat example
@@ -231,6 +233,53 @@ runc list
 nsenter -t PID --net bash
 ping IP_HOST
 
+```
+
+
+-  redis example
+
+redis server on host
+
+```
+wget http://download.redis.io/releases/redis-6.0.5.tar.gz
+tar xzf redis-6.0.5.tar.gz
+cd redis-6.0.5
+make
+make test
+make install
+
+sudo ip route
+vim redis.conf # add ip on host
+redis-server redis.conf 
+```
+
+redis client in runc
+
+```
+root@n223-247-006:~/test-runc-redis# cat rootfs//usr/local/run.sh
+#!/bin/bash
+/usr/local/bin/redis-cli -h 172.17.0.1 # add ip on host
+
+```
+
+check and restore test
+
+```
+root@n223-247-006:~/CRIU-test/test-runc-redis# runc checkpoint --tcp-established test
+216670124
+root@n223-247-006:~/CRIU-test/test-runc-redis# runc restore --tcp-established test
+start container %v
+ 1675229836359660200
+restore %v
+ 1675229836420799355
+```
+
+
+debug
+
+```
+nsenter -t 416682 --net bash
+ping # add ip on host
 ```
 
 ## Using runc
