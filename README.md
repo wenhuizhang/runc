@@ -138,7 +138,9 @@ host上打上这个patch应该就可以了， 打完之后就没有类似错误�
 set up network
 ```
 sudo ip netns ls
+sudo ip link  delete veth-host
 sudo ip netns delete alpine_network
+
 sudo ip netns add alpine_network
 sudo ip link add name veth-host type veth peer name veth-alpine
 sudo ip link set veth-alpine netns alpine_network
