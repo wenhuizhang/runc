@@ -7,11 +7,17 @@
 
 ## Building
 
+dependencies
+
+```
+apt-get install uidmap
+```
 
 In order to enable seccomp support you will need to install `libseccomp` on your platform.
 > e.g. `libseccomp-devel` for CentOS, or `libseccomp-dev` for Ubuntu
 
 ```bash
+
 # create a 'github.com/opencontainers' in your GOPATH/src
 cd github.com/opencontainers
 git clone https://github.com/opencontainers/runc
