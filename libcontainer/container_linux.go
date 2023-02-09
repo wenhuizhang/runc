@@ -1780,7 +1780,7 @@ func (c *linuxContainer) criuNotifications(resp *criurpc.CriuResp, process *Proc
 		}
 		// create a timestamp indicating when the restored checkpoint was started
 		c.created = time.Now().UTC()
-		fmt.Printf("restored checkpoint started", time.Now().UnixNano(), "...\n")
+		fmt.Printf("restored checkpoint started %s \n", time.Now().UnixNano())
 		if _, err := c.updateState(r); err != nil {
 			return err
 		}
