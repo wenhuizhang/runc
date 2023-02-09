@@ -7,11 +7,17 @@
 
 ## Building
 
+dependencies
+
+```
+apt-get install uidmap
+```
 
 In order to enable seccomp support you will need to install `libseccomp` on your platform.
 > e.g. `libseccomp-devel` for CentOS, or `libseccomp-dev` for Ubuntu
 
 ```bash
+
 # create a 'github.com/opencontainers' in your GOPATH/src
 cd github.com/opencontainers
 git clone https://github.com/opencontainers/runc
@@ -138,7 +144,9 @@ host上打上这个patch应该就可以了， 打完之后就没有类似错误�
 set up network
 ```
 sudo ip netns ls
+sudo ip link  delete veth-host
 sudo ip netns delete alpine_network
+
 sudo ip netns add alpine_network
 sudo ip link add name veth-host type veth peer name veth-alpine
 sudo ip link set veth-alpine netns alpine_network
