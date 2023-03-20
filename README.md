@@ -368,4 +368,252 @@ WantedBy=multi-user.target
 * [Terminals and standard IO](./docs/terminals.md)
 * [Experimental features](./docs/experimental.md)
 
+## Sample configuration for CRIU inside container 
 
+```
+
+{
+	"ociVersion": "1.0.2-dev",
+	"annotations": {
+		"org.criu.config": "/etc/special-runc-criu-options"
+	},
+	"process": {
+		"terminal": false,
+		"user": {
+			"uid": 0,
+			"gid": 0
+		},
+		"args": [
+			"sh"
+		],
+		"env": [
+			"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+			"TERM=xterm"
+		],
+		"cwd": "/",
+		"capabilities": {
+			"bounding": [
+				"CAP_AUDIT_WRITE",
+				"CAP_DAC_OVERRIDE",
+				"CAP_CHOWN",
+				"CAP_SETPCAP",
+				"CAP_SETGID",
+				"CAP_AUDIT_CONTROL",
+				"CAP_DAC_READ_SEARCH",
+				"CAP_NET_ADMIN",
+				"CAP_SYS_ADMIN",
+				"CAP_SYS_CHROOT",
+				"CAP_SYS_PTRACE",
+				"CAP_FOWNER",
+				"CAP_KILL",
+				"CAP_FSETID",
+				"CAP_SYS_RESOURCE",
+				"CAP_SETUID",
+				"CAP_AUDIT_WRITE",
+				"CAP_KILL",
+				"CAP_NET_BIND_SERVICE"
+			],
+			"effective": [
+				"CAP_DAC_OVERRIDE",
+				"CAP_CHOWN",
+				"CAP_SETPCAP",
+				"CAP_SETGID",
+				"CAP_AUDIT_CONTROL",
+				"CAP_DAC_READ_SEARCH",
+				"CAP_NET_ADMIN",
+				"CAP_SYS_ADMIN",
+				"CAP_SYS_CHROOT",
+				"CAP_SYS_PTRACE",
+				"CAP_FOWNER",
+				"CAP_KILL",
+				"CAP_FSETID",
+				"CAP_SYS_RESOURCE",
+				"CAP_SETUID",
+				"CAP_AUDIT_WRITE",
+				"CAP_KILL",
+				"CAP_NET_BIND_SERVICE"
+			],
+			"inheritable": [
+				"CAP_AUDIT_WRITE",
+				"CAP_DAC_OVERRIDE",
+				"CAP_CHOWN",
+				"CAP_SETPCAP",
+				"CAP_SETGID",
+				"CAP_AUDIT_CONTROL",
+				"CAP_DAC_READ_SEARCH",
+				"CAP_NET_ADMIN",
+				"CAP_SYS_ADMIN",
+				"CAP_SYS_CHROOT",
+				"CAP_SYS_PTRACE",
+				"CAP_FOWNER",
+				"CAP_KILL",
+				"CAP_FSETID",
+				"CAP_SYS_RESOURCE",
+				"CAP_NET_BIND_SERVICE",
+				"CAP_SETUID"
+			],
+			"permitted": [
+				"CAP_DAC_OVERRIDE",
+				"CAP_CHOWN",
+				"CAP_SETPCAP",
+				"CAP_SETGID",
+				"CAP_AUDIT_CONTROL",
+				"CAP_DAC_READ_SEARCH",
+				"CAP_NET_ADMIN",
+				"CAP_SYS_ADMIN",
+				"CAP_SYS_CHROOT",
+				"CAP_SYS_PTRACE",
+				"CAP_FOWNER",
+				"CAP_KILL",
+				"CAP_FSETID",
+				"CAP_SYS_RESOURCE",
+				"CAP_SETUID",
+				"CAP_AUDIT_WRITE",
+				"CAP_NET_BIND_SERVICE",
+				"CAP_AUDIT_WRITE"
+			],
+			"ambient": [
+				"CAP_AUDIT_WRITE",
+				"CAP_KILL",
+				"CAP_NET_BIND_SERVICE"
+			]
+		},
+		"rlimits": [
+			{
+				"type": "RLIMIT_NOFILE",
+				"hard": 1024,
+				"soft": 1024
+			}
+		],
+		"noNewPrivileges": true
+	},
+	"root": {
+		"path": "rootfs",
+		"readonly": true
+	},
+	"hostname": "runc",
+	"mounts": [
+		{
+			"destination": "/proc",
+			"type": "proc",
+			"source": "proc"
+		},
+		{
+			"destination": "/dev",
+			"type": "tmpfs",
+			"source": "tmpfs",
+			"options": [
+				"nosuid",
+				"strictatime",
+				"mode=755",
+				"size=65536k"
+			]
+		},
+		{
+			"destination": "/dev/pts",
+			"type": "devpts",
+			"source": "devpts",
+			"options": [
+				"nosuid",
+				"noexec",
+				"newinstance",
+				"ptmxmode=0666",
+				"mode=0620",
+				"gid=5"
+			]
+		},
+		{
+			"destination": "/dev/shm",
+			"type": "tmpfs",
+			"source": "shm",
+			"options": [
+				"nosuid",
+				"noexec",
+				"nodev",
+				"mode=1777",
+				"size=65536k"
+			]
+		},
+		{
+			"destination": "/dev/mqueue",
+			"type": "mqueue",
+			"source": "mqueue",
+			"options": [
+				"nosuid",
+				"noexec",
+				"nodev"
+			]
+		},
+		{
+			"destination": "/sys",
+			"type": "sysfs",
+			"source": "sysfs",
+			"options": [
+				"nosuid",
+				"noexec",
+				"nodev",
+				"ro"
+			]
+		},
+		{
+			"destination": "/sys/fs/cgroup",
+			"type": "cgroup",
+			"source": "cgroup",
+			"options": [
+				"nosuid",
+				"noexec",
+				"nodev",
+				"relatime",
+				"ro"
+			]
+		}
+	],
+	"linux": {
+		"resources": {
+			"devices": [
+				{
+					"allow": false,
+					"access": "rwm"
+				}
+			]
+		},
+		"namespaces": [
+			{
+				"type": "pid"
+			},
+			{
+				"type": "network"
+			},
+			{
+				"type": "ipc"
+			},
+			{
+				"type": "uts"
+			},
+			{
+				"type": "mount"
+			}
+		],
+		"maskedPaths": [
+			"/proc/acpi",
+			"/proc/asound",
+			"/proc/kcore",
+			"/proc/keys",
+			"/proc/latency_stats",
+			"/proc/timer_list",
+			"/proc/timer_stats",
+			"/proc/sched_debug",
+			"/sys/firmware",
+			"/proc/scsi"
+		],
+		"readonlyPaths": [
+			"/proc/bus",
+			"/proc/fs",
+			"/proc/irq",
+			"/proc/sys",
+			"/proc/sysrq-trigger"
+		]
+	}
+}
+
+```
